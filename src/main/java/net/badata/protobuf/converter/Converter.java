@@ -127,6 +127,25 @@ public final class Converter {
 		}
 	}
 
+	/**
+	 * Create domain object from Protobuf dto.
+	 *
+	 * @param protobuf    Source instance of Protobuf dto bounded to domain.
+	 * @param <T>         Domain type.
+	 * @param <E>         Protobuf dto type.
+	 * @return Domain instance filled with data stored in the Protobuf dto.
+	 */
+	public <T, E extends Message> void toDomain(final T domain, final E protobuf) {
+		ProtoClass protoClass = testDataBinding(domain.getClass(), protobuf.getClass());
+		try {
+			fillDomain(domain, protobuf, protoClass);
+		} catch (MappingException e) {
+			throw new ConverterException("Field mapping error", e);
+		} catch (WriteException e) {
+			throw new ConverterException("Domain field value setting error", e);
+		}
+	}
+
 	private ProtoClass testDataBinding(final Class<?> domainClass, final Class<? extends Message> protobufClass) {
 		ProtoClass protoClassAnnotation = AnnotationUtils.findProtoClass(domainClass, protobufClass);
 		if (protoClassAnnotation == null) {
