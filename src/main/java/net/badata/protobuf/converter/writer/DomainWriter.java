@@ -45,7 +45,7 @@ public class DomainWriter extends AbstractWriter {
 		}
 	}
 
-	private void writeValue(final Object destination,  final FieldResolver fieldResolver, final Object value) throws WriteException {
+	private void writeValue(final Object destination,  final FieldResolver fieldResolver, Object value) throws WriteException {
 		String setterName = FieldUtils.createDomainSetterName(fieldResolver);
 		try {
 			destinationClass.getMethod(setterName, fieldResolver.getDomainType()).invoke(destination, value);
@@ -58,6 +58,9 @@ public class DomainWriter extends AbstractWriter {
 		} catch (NoSuchMethodException e) {
 			throw new WriteException(
 					String.format("Setter not found: '%s.%s()'", destinationClass.getName(), setterName));
+		} catch (IllegalArgumentException e) {
+			throw new WriteException(
+					String.format("Argument type mismatch: %s -> %s", value.getClass().getCanonicalName(), setterName));
 		}
 	}
 }
